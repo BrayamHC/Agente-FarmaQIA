@@ -1,0 +1,11 @@
+services:
+  agente-farmaqia:
+    build: .
+    container_name: agente-farmaqia
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    volumes:
+      - .:/app
+    restart: unless-stopped
