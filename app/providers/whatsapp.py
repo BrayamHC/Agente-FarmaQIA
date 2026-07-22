@@ -29,3 +29,6 @@ class WhatsAppProvider:
                 print("WhatsApp response body:", response.text)
             response.raise_for_status()
             return response.json()
+
+
+whatsapp_provider = WhatsAppProvider()
