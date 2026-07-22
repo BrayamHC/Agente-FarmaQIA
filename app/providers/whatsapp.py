@@ -16,6 +16,7 @@ class WhatsAppProvider:
         }
         payload = {
             "messaging_product": "whatsapp",
+            "recipient_type": "individual",
             "to": to,
             "type": "text",
             "text": {"body": body},
@@ -23,8 +24,8 @@ class WhatsAppProvider:
 
         async with httpx.AsyncClient(timeout=30.0) as client:
             response = await client.post(self.base_url, headers=headers, json=payload)
+            if response.is_error:
+                print("WhatsApp response status:", response.status_code)
+                print("WhatsApp response body:", response.text)
             response.raise_for_status()
             return response.json()
-
-
-whatsapp_provider = WhatsAppProvider()
