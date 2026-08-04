@@ -1,12 +1,15 @@
-import os
 import httpx
+import logging
+from app.config.settings import settings
+
+logger = logging.getLogger(__name__)
 
 
 class InventoryService:
     def __init__(self) -> None:
-        self.base_url = os.getenv("NESTJS_API_URL", "").rstrip("/")
-        self.api_key = os.getenv("NESTJS_INTERNAL_API_KEY", "")
-        self.sucursal_id = os.getenv("FARMACIA_SUCURSAL_ID", "1")
+        self.base_url = settings.nestjs_api_url.rstrip("/") if settings.nestjs_api_url else ""
+        self.api_key = settings.nestjs_internal_api_key
+        self.sucursal_id = settings.farmacia_sucursal_id
 
     def get_products_by_tags(self, tags: list[str], limite: int = 5) -> list[dict]:
         if not self.base_url or not tags:
@@ -25,7 +28,7 @@ class InventoryService:
 
         try:
             response = httpx.get(
-                f"{self.base_url}/productos/recomendaciones/tags",
+                f"{self.base_url}/productos/recomendaciones",
                 params=params,
                 headers=headers,
                 timeout=10.0,
@@ -33,7 +36,8 @@ class InventoryService:
             response.raise_for_status()
             data = response.json()
             return data.get("productos", [])
-        except Exception:
+        except Exception as e:
+            logger.error(f"Error al obtener recomendaciones: {e}")
             return []
 
 
