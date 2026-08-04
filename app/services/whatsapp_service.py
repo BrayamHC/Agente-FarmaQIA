@@ -21,7 +21,7 @@ class WhatsAppService:
                     if not from_number or not text:
                         continue
 
-                    reply = chat_service.handle_message(text)
+                    reply = await chat_service.handle_message(text)
 
                     try:
                         await whatsapp_provider.send_text_message(
