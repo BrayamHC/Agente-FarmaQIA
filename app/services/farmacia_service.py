@@ -1,4 +1,3 @@
-import httpx
 import logging
 from typing import Optional
 from app.config.settings import settings
@@ -10,13 +9,12 @@ class FarmaciaService:
     """Conecta el microservicio con el backend NestJS de FarmaQ."""
 
     def __init__(self):
-        self.base_url = settings.NESTJS_API_URL  # ej: http://nestjs-api:3000/api
-        self.api_key = settings.NESTJS_INTERNAL_API_KEY
-        self.sucursal_id = settings.FARMACIA_SUCURSAL_ID  # fija o por config
+        self.base_url = settings.nestjs_api_url.rstrip("/") if settings.nestjs_api_url else ""
+        self.api_key = settings.nestjs_internal_api_key
+        self.sucursal_id = settings.farmacia_sucursal_id
         self.headers = {
             "x-internal-api-key": self.api_key,
-            # Simula sesión de sucursal para el guard de NestJS
-            "x-sucursal-id": str(self.sucursal_id),
+            "x-sucursal-id": self.sucursal_id,
         }
 
     async def obtener_recomendaciones(
@@ -29,6 +27,9 @@ class FarmaciaService:
         Consulta productos por tags aplicando FEFO en NestJS.
         Retorna lista limpia sin información de caducidad.
         """
+        if not self.base_url or not tags:
+            return {"success": False, "total": 0, "productos": []}
+
         async with httpx.AsyncClient(timeout=10.0) as client:
             try:
                 response = await client.get(
@@ -54,6 +55,9 @@ class FarmaciaService:
         Registra un pedido desde la conversación de WhatsApp.
         items: [{ sku, producto_id, cantidad }]
         """
+        if not self.base_url:
+            return {"success": False, "message": "NESTJS_API_URL no configurada"}
+
         async with httpx.AsyncClient(timeout=10.0) as client:
             try:
                 response = await client.post(
@@ -73,3 +77,6 @@ class FarmaciaService:
             except Exception as e:
                 logger.error(f"Error inesperado al crear pedido: {e}")
                 return {"success": False, "message": str(e)}
+
+
+farmacia_service = FarmaciaService()

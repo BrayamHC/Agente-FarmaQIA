@@ -65,6 +65,7 @@ class PromptService:
             "musculo": ["musculo"],
             "fiebre": ["fiebre"],
             "dolor": ["dolor"],
+            "náuseas": ["nauseas", "náuseas", "vómito"],
             "cabeza": ["cabeza", "dolor"],
             "estómago": ["estomago"],
             "estomago": ["estomago"],
