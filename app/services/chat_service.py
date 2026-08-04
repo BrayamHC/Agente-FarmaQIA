@@ -1,9 +1,8 @@
-# app/services/chat_service.py
 import logging
+import httpx
 from app.services.prompt_service import prompt_service
 from app.services.farmacia_service import FarmaciaService
 from app.config.settings import settings
-import httpx
 
 logger = logging.getLogger(__name__)
 farmacia_service = FarmaciaService()
@@ -48,9 +47,20 @@ class ChatService:
                 )
                 response.raise_for_status()
                 data = response.json()
-                return data["choices"][0]["message"]["content"]
+
+                # Validación segura de la respuesta
+                choices = data.get("choices", [])
+                if not choices or "message" not in choices[0]:
+                    logger.error(f"Respuesta inválida de OpenRouter: {data}")
+                    return "Disculpa, no pude procesar tu consulta. ¿Podrías intentar de nuevo?"
+
+                return choices[0]["message"]["content"]
+
+        except httpx.HTTPStatusError as e:
+            logger.error(f"Error HTTP de OpenRouter: {e.response.status_code} - {e.response.text}")
+            return "Disculpa, estoy teniendo problemas para responder. ¿Podrías intentar de nuevo?"
         except Exception as e:
-            logger.error(f"Error llamando a OpenRouter: {e}")
+            logger.error(f"Error inesperado llamando a OpenRouter: {e}")
             return "Disculpa, estoy teniendo problemas para responder. ¿Podrías intentar de nuevo?"
 
 

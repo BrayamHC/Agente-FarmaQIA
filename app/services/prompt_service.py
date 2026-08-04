@@ -51,22 +51,28 @@ class PromptService:
     def extract_tags(self, user_message: str) -> list[str]:
         texto = user_message.lower()
 
+        # Mapa simplificado: clave = palabra a buscar, valor = tags a activar
         mapa = {
-            "gripa": ["gripa", "gripe", "resfriado"],
-            "gripe": ["gripa", "gripe", "resfriado"],
+            "gripa": ["gripa", "resfriado"],
+            "gripe": ["gripa", "resfriado"],
+            "resfriado": ["gripa", "resfriado"],
             "tos": ["tos"],
-            "congestión": ["congestión", "resfriado"],
-            "congestion": ["congestión", "resfriado"],
-            "dolor muscular": ["dolor muscular", "músculo"],
-            "dolores musculares": ["dolor muscular", "músculo"],
-            "músculo": ["músculo"],
-            "musculo": ["músculo"],
+            "congestión": ["congestion", "resfriado"],
+            "congestion": ["congestion", "resfriado"],
+            "dolor muscular": ["dolor", "musculo"],
+            "dolores musculares": ["dolor", "musculo"],
+            "músculo": ["musculo"],
+            "musculo": ["musculo"],
             "fiebre": ["fiebre"],
             "dolor": ["dolor"],
+            "cabeza": ["cabeza", "dolor"],
+            "estómago": ["estomago"],
+            "estomago": ["estomago"],
+            "diarrea": ["diarrea"],
+            "alergia": ["alergia"],
         }
 
         tags: set[str] = set()
-
         for clave, valores in mapa.items():
             if clave in texto:
                 tags.update(valores)
