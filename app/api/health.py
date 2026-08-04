@@ -8,6 +8,6 @@ router = APIRouter()
 def health_check():
     return {
         "status": "ok",
-        "service": settings.app_name,
-        "environment": settings.environment,
+        "service": settings.APP_NAME,
+        "environment": settings.ENVIRONMENT,
     }

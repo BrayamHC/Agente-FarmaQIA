@@ -5,7 +5,7 @@ from app.api.webhook import router as webhook_router
 from app.config.settings import settings
 
 app = FastAPI(
-    title=settings.app_name,
+    title=settings.APP_NAME,
     description="Asistente Inteligente para Farmacias",
     version="0.2.0",
 )
