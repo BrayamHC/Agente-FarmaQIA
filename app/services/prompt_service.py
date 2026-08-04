@@ -55,6 +55,18 @@ class PromptService:
             "musculo": ["músculo"],
             "fiebre": ["fiebre"],
             "dolor": ["dolor"],
+            "dolor de estómago": ["dolor estomacal", "estómago", "gastritis"],
+            "dolor estomacal": ["dolor estomacal", "estómago", "gastritis"],
+            "estómago": ["dolor estomacal", "estómago", "gastritis"],
+            "estomago": ["dolor estomacal", "estómago", "gastritis"],
+            "gastritis": ["dolor estomacal", "estómago", "gastritis"],
+            "náuseas": ["nauseas", "náuseas", "vómito"],
+            "nauseas": ["nauseas", "náuseas", "vómito"],
+            "vomito": ["nauseas", "náuseas", "vómito"],
+            "vómito": ["nauseas", "náuseas", "vómito"],
+            "diarrea": ["diarrea"],
+            "acidez": ["acidez", "agruras"],
+            "agruras": ["acidez", "agruras"],
         }
 
         tags: set[str] = set()

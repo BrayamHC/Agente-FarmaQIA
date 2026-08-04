@@ -2,21 +2,25 @@ from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", extra="ignore")
+    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
 
+    # OpenRouter
     openrouter_api_key: str
     openrouter_base_url: str = "https://openrouter.ai/api/v1"
     openrouter_model: str = "moonshotai/kimi-k2"
 
+    # App
     app_name: str = "Agente_FarmaQIA"
     app_url: str = "http://localhost:8000"
     environment: str = "development"
 
+    # WhatsApp
     whatsapp_verify_token: str
     whatsapp_access_token: str
     whatsapp_phone_number_id: str
     whatsapp_api_version: str = "v23.0"
 
+    # NestJS API Configuration
     nestjs_api_url: str = ""
     nestjs_internal_api_key: str = ""
     farmacia_sucursal_id: str = "1"
