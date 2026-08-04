@@ -19,7 +19,8 @@ class Settings(BaseSettings):
     WHATSAPP_PHONE_NUMBER_ID: str
     WHATSAPP_API_VERSION: str = "v23.0"
 
-    NESTJS_API_URL: str = "http://localhost:3100" # Fallback local
+    # NestJS
+    NESTJS_API_URL: str = "http://localhost:3100"
     NESTJS_INTERNAL_API_KEY: str = ""
     FARMACIA_SUCURSAL_ID: int = 1
 

@@ -5,13 +5,13 @@ from app.config.settings import settings
 class WhatsAppProvider:
     def __init__(self) -> None:
         self.base_url = (
-            f"https://graph.facebook.com/{settings.whatsapp_api_version}/"
-            f"{settings.whatsapp_phone_number_id}/messages"
+            f"https://graph.facebook.com/{settings.WHATSAPP_API_VERSION}/"
+            f"{settings.WHATSAPP_PHONE_NUMBER_ID}/messages"
         )
 
     async def send_text_message(self, to: str, body: str) -> dict:
         headers = {
-            "Authorization": f"Bearer {settings.whatsapp_access_token}",
+            "Authorization": f"Bearer {settings.WHATSAPP_ACCESS_TOKEN}",
             "Content-Type": "application/json",
         }
         payload = {
