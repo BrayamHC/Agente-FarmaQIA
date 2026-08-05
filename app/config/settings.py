@@ -7,6 +7,7 @@ class Settings(BaseSettings):
         env_file_encoding="utf-8",
         extra="ignore",
         case_sensitive=False,
+        populate_by_name=True,
     )
 
     # OpenRouter
@@ -25,7 +26,7 @@ class Settings(BaseSettings):
     whatsapp_phone_number_id: str
     whatsapp_api_version: str = "v23.0"
 
-    # NestJS API
+    # NestJS API (opcionales)
     nestjs_api_url: str = ""
     nestjs_internal_api_key: str = ""
     farmacia_sucursal_id: str = "1"
