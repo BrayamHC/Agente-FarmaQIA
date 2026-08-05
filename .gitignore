@@ -1,1 +1,37 @@
-Nothing needs to be added to the .gitignore file based on the provided changes. The modified file 'app/services/inventory_service.py' is a source code file that should not be ignored.
+```
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Dependencies
+.venv/
+venv/
+env/
+.env
+.env.local
+.env.*
+
+# Logs
+*.log
+
+# Coverage
+.coverage
+coverage/
+htmlcov/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*.tmp
+
+# Build artifacts
+dist/
+build/
+*.so
+*.dylib
+*.dll
+```
