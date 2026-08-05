@@ -1,3 +1,5 @@
+import re
+
 SYSTEM_PROMPT = """
 Eres el asistente virtual de FarmaQIA. Tu rol es el de un asesor
 farmacéutico amable y profesional.
@@ -21,6 +23,46 @@ Instrucción de venta:
   para que puedas adquirirlo. ¡Con gusto te atendemos!"
 """
 
+# Cada entrada: patrón regex -> lista de tags a activar
+TAG_MAP: list[tuple[str, list[str]]] = [
+    # Dolor general y musculoesquelético
+    (r"dolor",              ["dolor"]),
+    (r"duele",              ["dolor"]),
+    (r"molesti",            ["dolor"]),
+    (r"espalda",            ["dolor", "espalda", "musculo"]),
+    (r"columna",            ["dolor", "espalda", "musculo"]),
+    (r"articulaci",         ["dolor", "articulacion"]),
+    (r"rodilla",            ["dolor", "articulacion"]),
+    (r"cuello",             ["dolor", "musculo"]),
+    (r"m[uú]sculo",        ["dolor", "musculo"]),
+    (r"contractura",        ["dolor", "musculo"]),
+    (r"lumbar",             ["dolor", "espalda", "musculo"]),
+    (r"cabeza",             ["dolor", "cabeza"]),
+    (r"migra[ñn]",         ["dolor", "cabeza", "migrana"]),
+    # Respiratorio
+    (r"grip[ae]",          ["gripa", "resfriado"]),
+    (r"resfri",            ["gripa", "resfriado"]),
+    (r"tos",               ["tos"]),
+    (r"congesti",          ["congestion", "resfriado"]),
+    (r"mocos",             ["congestion", "resfriado"]),
+    (r"garganta",          ["garganta", "dolor"]),
+    (r"fiebre",            ["fiebre"]),
+    (r"temperatura",       ["fiebre"]),
+    # Digestivo
+    (r"n[aá]usea",         ["nauseas"]),
+    (r"v[oó]mito",         ["nauseas", "vomito"]),
+    (r"estómago|estomago", ["estomago", "dolor"]),
+    (r"diarrea",           ["diarrea"]),
+    (r"estreñ",            ["estrenimiento"]),
+    (r"gastritis",         ["gastritis", "estomago"]),
+    (r"acidez",            ["gastritis", "estomago"]),
+    # Alergia / piel
+    (r"alergi",            ["alergia"]),
+    (r"picaz[oó]n",       ["alergia", "piel"]),
+    (r"comezon|comezón",  ["alergia", "piel"]),
+    (r"ronchas",           ["alergia", "piel"]),
+]
+
 
 class PromptService:
     def build_messages(
@@ -35,10 +77,11 @@ class PromptService:
             messages.append({
                 "role": "system",
                 "content": (
-                    "Contexto interno de inventario disponible:\n"
+                    "Productos disponibles en inventario que pueden ayudar al cliente:\n"
                     f"{inventory_context}\n\n"
-                    "Usa esta información solo para recomendar productos disponibles. "
-                    "Nunca menciones al cliente que fueron priorizados por caducidad."
+                    "IMPORTANTE: Menciona estos productos por nombre en tu respuesta. "
+                    "El cliente debe saber qué productos específicos tenemos disponibles. "
+                    "Nunca menciones precios de caducidad ni que fueron seleccionados por fecha."
                 ),
             })
 
@@ -50,49 +93,26 @@ class PromptService:
 
     def extract_tags(self, user_message: str) -> list[str]:
         texto = user_message.lower()
-
-        # Mapa simplificado: clave = palabra a buscar, valor = tags a activar
-        mapa = {
-            "gripa": ["gripa", "resfriado"],
-            "gripe": ["gripa", "resfriado"],
-            "resfriado": ["gripa", "resfriado"],
-            "tos": ["tos"],
-            "congestión": ["congestion", "resfriado"],
-            "congestion": ["congestion", "resfriado"],
-            "dolor muscular": ["dolor", "musculo"],
-            "dolores musculares": ["dolor", "musculo"],
-            "músculo": ["musculo"],
-            "musculo": ["musculo"],
-            "fiebre": ["fiebre"],
-            "dolor": ["dolor"],
-            "náuseas": ["nauseas", "náuseas", "vómito"],
-            "cabeza": ["cabeza", "dolor"],
-            "estómago": ["estomago"],
-            "estomago": ["estomago"],
-            "diarrea": ["diarrea"],
-            "alergia": ["alergia"],
-        }
-
         tags: set[str] = set()
-        for clave, valores in mapa.items():
-            if clave in texto:
-                tags.update(valores)
+
+        for pattern, tag_list in TAG_MAP:
+            if re.search(pattern, texto):
+                tags.update(tag_list)
 
         return list(tags)
 
     def format_inventory_context(self, productos: list[dict]) -> str:
         if not productos:
-            return "No hay productos disponibles para esos tags."
+            return ""
 
         lineas: list[str] = []
-        for producto in productos:
+        for p in productos:
+            precio = float(p.get("precio_publico") or 0)
+            stock = int(p.get("stock_disponible") or 0)
+            presentacion = p.get("presentacion") or "N/A"
             lineas.append(
-                f"- ID: {producto['producto_id']} | "
-                f"SKU: {producto['sku']} | "
-                f"Nombre: {producto['nombre']} | "
-                f"Presentación: {producto.get('presentacion') or 'N/A'} | "
-                f"Precio: ${float(producto.get('precio_publico') or 0):.2f} | "
-                f"Stock: {int(producto.get('stock_disponible') or 0)}"
+                f"- {p['nombre']} | {presentacion} | "
+                f"Precio: ${precio:.2f} | Stock: {stock} unidades"
             )
 
         return "\n".join(lineas)
