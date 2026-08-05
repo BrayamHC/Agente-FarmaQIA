@@ -1,7 +1,12 @@
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_file=".env", env_file_encoding="utf-8", extra="ignore")
+    model_config = SettingsConfigDict(
+        env_file=".env",
+        env_file_encoding="utf-8",
+        extra="ignore",
+        case_sensitive=False,
+    )
 
     # OpenRouter
     openrouter_api_key: str
@@ -19,7 +24,7 @@ class Settings(BaseSettings):
     whatsapp_phone_number_id: str
     whatsapp_api_version: str = "v23.0"
 
-    # NestJS API Configuration
+    # NestJS API
     nestjs_api_url: str = ""
     nestjs_internal_api_key: str = ""
     farmacia_sucursal_id: str = "1"

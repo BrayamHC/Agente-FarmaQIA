@@ -6,20 +6,36 @@ logger = logging.getLogger(__name__)
 
 
 class InventoryService:
+    """
+    Servicio síncrono para obtener productos por tags desde NestJS.
+    Usado en el flujo síncrono de chat_service.
+    """
+    
     def __init__(self) -> None:
         self.base_url = (settings.nestjs_api_url or "").rstrip("/")
         self.api_key = settings.nestjs_internal_api_key
         self.sucursal_id = settings.farmacia_sucursal_id
-        
-        # Debug logging on initialization
-        logger.info(f"InventoryService initialized: base_url={bool(self.base_url)}, api_key_set={bool(self.api_key)}, sucursal_id={self.sucursal_id}")
+        logger.info(
+            f"InventoryService initialized: base_url={'✓' if self.base_url else '✗'}, "
+            f"sucursal_id={self.sucursal_id}"
+        )
 
     def get_products_by_tags(self, tags: list[str], limite: int = 5) -> list[dict]:
-        if not self.base_url or not self.api_key or not tags:
-            logger.warning(
-                f"No se pueden obtener productos: base_url={bool(self.base_url)}, "
-                f"api_key={bool(self.api_key)}, tags_count={len(tags)}"
-            )
+        """
+        Obtiene productos recomendados basados en tags/síntomas.
+        
+        Args:
+            tags: Lista de tags para buscar productos
+            limite: Máximo número de productos a retornar
+            
+        Returns:
+            list[dict]: Lista de productos con su información básica
+        """
+        if not self.base_url:
+            logger.error("NESTJS_API_URL no configurada")
+            return []
+            
+        if not tags:
             return []
 
         headers = {
@@ -37,6 +53,7 @@ class InventoryService:
         logger.info(f"Consultando NestJS: {url} con tags={tags}, params={params}")
 
         try:
+            logger.info(f"Consultando inventario: tags={tags}, limite={limite}")
             response = httpx.get(
                 url,
                 params=params,
@@ -47,13 +64,10 @@ class InventoryService:
             response.raise_for_status()
             data = response.json()
             productos = data.get("productos", [])
-            logger.info(f"Productos obtenidos: {len(productos)}")
+            logger.info(f"Inventario obtenido: {len(productos)} productos encontrados")
             return productos
         except httpx.HTTPStatusError as e:
-            logger.error(f"Error HTTP {e.response.status_code} desde NestJS: {e.response.text}")
-            return []
-        except httpx.RequestError as e:
-            logger.error(f"Error de conexión con NestJS ({self.base_url}): {e}")
+            logger.error(f"Error HTTP al obtener inventario: {e.response.status_code}")
             return []
         except Exception as e:
             logger.error(f"Error inesperado al obtener recomendaciones: {e}")

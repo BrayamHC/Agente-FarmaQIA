@@ -28,7 +28,10 @@ htmlcov/
 *.swo
 *.tmp
 
-# OS
-.DS_Store
-Thumbs.db
+# Build artifacts
+dist/
+build/
+*.so
+*.dylib
+*.dll
 ```
